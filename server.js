@@ -7,8 +7,11 @@ require('dotenv').config();
 const bodyParser = require('body-parser');
 app.use(bodyParser.json());
 
-
-
+const logRequest = (req,res,next) =>{
+    console.log(`[${new Date().toLocaleString()}] Request made to : ${req.originalUrl}`);
+    next();
+};  
+app.use(logRequest);
 app.get('/',function(req,res){
     res.send("Welcome to our Hotel"); 
 })
