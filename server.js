@@ -9,7 +9,7 @@ app.use(bodyParser.json());
 
 const logRequest = (req,res,next) =>{
     console.log(`[${new Date().toLocaleString()}] Request made to : ${req.originalUrl}`);
-    next();
+    next(); 
 };  
 app.use(logRequest); 
 

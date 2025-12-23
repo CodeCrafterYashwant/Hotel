@@ -40,39 +40,33 @@ const personSchema = new mongoose.Schema({
     }
 });
 
-// FIX 1: Removed 'next' parameter. Do not call next() in async functions.
-personSchema.pre('save', async function () {
+personSchema.pre('save', async function(next) {
     const person = this;
 
-    // If password hasn't been modified, return early
-    if(!person.isModified('password')) return;
+    if(!person.isModified('password')) return next();
 
     try{
-        // FIX 2: Added 'await' to genSalt (crucial!)
         const salt = await bcrypt.genSalt(10);
 
-        // Hash password
         const hassedpassword = await bcrypt.hash(person.password, salt);
 
         person.password = hassedpassword;
-        
-        // AUTOMATIC COMPLETION: No next() needed here.
+        next();
         
     }catch(error){
-        // FIX 3: Just throw the error, don't use next(error)
-        throw error;
+        return next(error);
     }
 });
 
-// FIX 4: Changed 'method' to 'methods' (plural is required)
-personSchema.methods.comparePass = async function(candidatepassword){
+personSchema.methods.comparePassword = async function(candidatepassword){
     try{
         const ismatch = await bcrypt.compare(candidatepassword, this.password);
         return ismatch;
     }catch(error){
         throw error;
     }
-} 
+};
+
 
 const Person = mongoose.model('Person', personSchema);
 module.exports = Person;
