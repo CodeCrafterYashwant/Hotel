@@ -4,8 +4,13 @@ require('dotenv').config();
 
 
 // const mongoURL = process.env.MONGODB_URL_LOCAL;
+const mongoURL = process.env.DB_URL || 'mongodb://localhost:27017/hotel';
 
-const mongoURL = process.env.MONGODB_URL || 'mongodb://localhost:27017/hotel';
+if (mongoURL.includes("localhost")) {
+    console.log("⚠️ Database Status: Using LOCALHOST connection.");
+} else {
+    console.log("✅ Database Status: Using REMOTE (Atlas) connection.");
+}
 
 mongoose.connect(mongoURL);
 
