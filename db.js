@@ -3,11 +3,14 @@ require('dotenv').config();
 
 
 
-const mongoURL = process.env.MONGODB_URL_LOCAL;
+// const mongoURL = process.env.MONGODB_URL_LOCAL;
 
-// const mongoURL = process.env.MONGODB_URL;
+const mongoURL = process.env.MONGODB_URL || 'mongodb://localhost:27017/hotel';
 
 mongoose.connect(mongoURL);
+
+console.log("Attempting to connect to:", mongoURL);
+
 
 const db = mongoose.connection;
 
