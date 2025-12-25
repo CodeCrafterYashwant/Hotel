@@ -1,6 +1,8 @@
 const express = require('express');
 const router = express.Router();
 const Person = require('./../models/Person')
+const passport = require('../auth');
+const localAuthMiddleware = passport.authenticate('local',{session:false});
 
 
 //simple post request
@@ -20,7 +22,7 @@ router.post('/',async (req,res)=>{
 
 
 //simple get request
-router.get('/', async (req,res)=>{
+router.get('/',localAuthMiddleware, async (req,res)=>{
     try{
         const data = await Person.find();
         console.log('data featched');
@@ -33,7 +35,7 @@ router.get('/', async (req,res)=>{
 })
 
 //get by work
-router.get('/:worktype',async (req,res)=>{
+router.get('/:worktype',localAuthMiddleware,async (req,res)=>{
     const worktype = req.params.worktype;
     try{
         if(worktype == 'chef' || worktype == 'manager' || worktype == 'waiter'){
@@ -52,17 +54,30 @@ router.get('/:worktype',async (req,res)=>{
 
 
 //put by id
-router.put('/:id',async (req,res)=>{
+// personRoutes.js
+
+router.put('/:id',localAuthMiddleware, async (req, res)=>{
     try{
         const personId = req.params.id;
         const updatedPersonData = req.body;
-        const response = await Person.findByIdAndUpdate(personId,updatedPersonData,{
-            new:true,
-            runValidators: true
-        });
-        if(!response){
+
+        // 1. Find the person specifically
+        const person = await Person.findById(personId);
+
+        if(!person){
             return res.status(404).json({error: 'Person not found'});
         }
+
+        // 2. Manually update the fields provided in the body
+        // Object.keys creates an array of the keys in updatedPersonData
+        Object.keys(updatedPersonData).forEach(key => {
+            person[key] = updatedPersonData[key];
+        });
+
+        // 3. Save the person. 
+        // This triggers the pre('save') hook in Person.js, hashing the password if it changed.
+        const response = await person.save();
+
         console.log('Data updated');
         res.status(200).json(response);
 
@@ -73,9 +88,8 @@ router.put('/:id',async (req,res)=>{
     }
 })
 
-
 //delete by id
-router.delete('/:id', async (req,res)=>{
+router.delete('/:id',localAuthMiddleware, async (req,res)=>{
     const personId = req.params.id;
     try{
         const response = await Person.findByIdAndDelete(personId);

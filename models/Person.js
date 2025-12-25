@@ -40,10 +40,10 @@ const personSchema = new mongoose.Schema({
     }
 });
 
-personSchema.pre('save', async function(next) {
+personSchema.pre('save', async function() {
     const person = this;
 
-    if(!person.isModified('password')) return next();
+    if(!person.isModified('password')) return;
 
     try{
         const salt = await bcrypt.genSalt(10);
@@ -51,10 +51,9 @@ personSchema.pre('save', async function(next) {
         const hassedpassword = await bcrypt.hash(person.password, salt);
 
         person.password = hassedpassword;
-        next();
         
     }catch(error){
-        return next(error);
+        throw error;
     }
 });
 
