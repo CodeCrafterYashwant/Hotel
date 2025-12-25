@@ -14,7 +14,6 @@ if (mongoURL.includes("localhost")) {
 
 mongoose.connect(mongoURL);
 
-console.log("Attempting to connect to:", mongoURL);
 
 
 const db = mongoose.connection;
