@@ -6,7 +6,7 @@ const localAuthMiddleware = passport.authenticate('local',{session:false});
 
 
 //simple post request
-router.post('/',async (req,res)=>{
+router.post('/signup',async (req,res)=>{
     try{
         const data = req.body;
         const newPerson = new Person(data);
